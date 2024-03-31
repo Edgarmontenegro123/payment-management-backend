@@ -34,3 +34,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`server is listening on ${port}`);
 });
+
+export { app, pool }; // Exportamos app y pool
