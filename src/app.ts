@@ -1,12 +1,18 @@
-import express from 'express';
-import {Pool} from 'pg';
+import express from 'express'
+import {Pool} from 'pg'
 import dotenv from 'dotenv'
+import usersRoutes from './routes/usersRoutes'
+import paymentsRoutes from './routes/paymentsRoutes'
+import recipientsRoutes from './routes/recipientsRoutes'
 
 // Cargamos variables de entorno desde el archivo .env
 dotenv.config()
 
-const app = express();
-const port = 3000;
+const app = express()
+const port = 3000
+
+// Middleware para procesar solicitudes JSON
+app.use(express.json())
 
 // Configuramos la conexión a PostgreSQL
 const pool = new Pool({
@@ -20,19 +26,24 @@ const pool = new Pool({
 // Verificamos la conexión a PostgreSQL
 pool.connect((err: any, client: any, release: () => void) => {
     if(err) {
-        return console.error('Error al conectar con la base de datos: ', err)
+        return console.error('Error connecting to the database: ', err)
     }
-    console.log('Conexión exitosa a la base de datos PostgreSQL')
+    console.log('Connection to PostgreSQL database successful')
     release()
 })
 
 // Ruta de ejemplo
 app.get('/', (req, res) => {
-    res.send('The sedulous hyena ate the antelope!');
-});
+    res.send('Welcome to the payment management system!');
+})
+
+// Importamos las rutas
+app.use('/users', usersRoutes)
+app.use('/payments', paymentsRoutes)
+app.use('/recipients', recipientsRoutes)
 
 app.listen(port, () => {
-    console.log(`server is listening on ${port}`);
+    console.log(`server is listening on ${port}`)
 });
 
-export { app, pool }; // Exportamos app y pool
+export { app, pool } // Exportamos app y pool
