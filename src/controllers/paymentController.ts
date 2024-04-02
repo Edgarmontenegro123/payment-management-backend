@@ -14,12 +14,17 @@ const getAllPayments = async (req: Request, res: Response) => {
 
 // Función para crear un nuevo pago
 const createPayment = async (req: Request, res: Response) => {
-    const {amount, date, payment_type, recipient_id, user_id} = req.body
+    const {amount, date, payment_type, recipient_id, sender_id} = req.body
+    if(sender_id === recipient_id) {
+        return res.status(400).json({
+            message: 'No puedes realizar pagos a ti mismo!'
+        })
+    }
     try {
         const result = await pool.query(
-            'INSERT INTO payments (amount, date, payment_type, recipient_id, user_id) VALUES (' +
+            'INSERT INTO payments (amount, date, payment_type, recipient_id, sender_id) VALUES (' +
             '$1, $2, $3, $4, $5) RETURNING *',
-            [amount, date, payment_type, recipient_id, user_id]
+            [amount, date, payment_type, recipient_id, sender_id]
         )
         res.status(201).json(result.rows[0])
     } catch (error) {

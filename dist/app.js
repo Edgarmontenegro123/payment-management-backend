@@ -9,7 +9,7 @@ const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 const usersRoutes_1 = __importDefault(require("./routes/usersRoutes"));
 const paymentsRoutes_1 = __importDefault(require("./routes/paymentsRoutes"));
-const recipientsRoutes_1 = __importDefault(require("./routes/recipientsRoutes"));
+
 // Cargamos variables de entorno desde el archivo .env
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
 // Importamos las rutas
 app.use('/users', usersRoutes_1.default);
 app.use('/payments', paymentsRoutes_1.default);
-app.use('/recipients', recipientsRoutes_1.default);
+
 app.listen(port, () => {
     console.log(`server is listening on ${port}`);
 });

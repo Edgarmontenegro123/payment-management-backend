@@ -10,6 +10,6 @@ router.get('/', getAllUsers);
 router.post('/', createUser);
 
 // Ruta para obtener un usuario por su ID
-router.get('/', getUserById);
+router.get('/:id', getUserById);
 
 export default router;

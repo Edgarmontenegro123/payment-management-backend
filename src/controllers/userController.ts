@@ -31,11 +31,12 @@ export const getUserById = async (req: Request, res: Response) => {
 
 // Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response) => {
-    const {username, email, password} = req.body
+    const {username, email, password, is_recipient, bank_account_number, is_active} = req.body
     try {
         const result = await pool.query(
-            'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-            [username, email, password]
+            'INSERT INTO users (username, email, password, is_recipient, bank_account_number, is_active) ' +
+            'VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [username, email, password, is_recipient, bank_account_number, is_active]
         )
         res.status(201).json(result.rows[0])
     } catch (error) {
