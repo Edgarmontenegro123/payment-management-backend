@@ -5,7 +5,7 @@ import {pool} from '../app'
 const getAllPayments = async (req: Request, res: Response) => {
     try{
         const result = await pool.query('SELECT * FROM payments')
-        res.json(result.rows)
+        res.status(200).json(result.rows)
     } catch (error) {
         console.error('Error al obtener los pagos: ', error)
         res.status(500).json({message: 'Error al obtener los pagos'})
@@ -14,12 +14,22 @@ const getAllPayments = async (req: Request, res: Response) => {
 
 // Función para obtener pagos por ID de usuario
 const getPaymentsByUserId = async (req: Request, res: Response) => {
-    const userId = req.params.id
+    const userId = parseInt(req.params.id)
+    if(isNaN(userId) || userId <= 0) {
+        return res.status(400).json({
+            message: 'Id de usuario no válido'
+        })
+    }
     try {
         const result = await pool.query(
             'SELECT * FROM payments WHERE sender_id = $1',
             [userId]
         )
+        if(result.rowCount === 0) {
+            return res.status(404).json({
+                message: 'No se encontraron pagos para este usuario'
+            })
+        }
         return res.status(200).json(result.rows)
     } catch (error) {
         console.error('Error al obtener los pagos por Id de usuario: ', error)
@@ -32,6 +42,12 @@ const getPaymentsByUserId = async (req: Request, res: Response) => {
 // Función para crear un nuevo pago
 const createPayment = async (req: Request, res: Response) => {
     const {amount, date, payment_type, recipient_id, sender_id} = req.body
+
+    // Validar que los campos necesarios estén presentes
+    if (!amount || !date || !payment_type || !recipient_id || !sender_id) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
     if(sender_id === recipient_id) {
         return res.status(400).json({
             message: 'No puedes realizar pagos a ti mismo!'

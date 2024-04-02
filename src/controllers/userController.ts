@@ -17,6 +17,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // Función para obtener un usuario por su ID
 export const getUserById = async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
+    if(isNaN(userId) || userId <= 0) {
+        return res.status(400).json({
+            message: 'Id de usuario no válido'
+        })
+    }
     try {
         const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
         if (result.rowCount === 0) {
