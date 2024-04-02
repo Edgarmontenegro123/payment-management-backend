@@ -12,6 +12,23 @@ const getAllPayments = async (req: Request, res: Response) => {
     }
 }
 
+// Función para obtener pagos por ID de usuario
+const getPaymentsByUserId = async (req: Request, res: Response) => {
+    const userId = req.params.id
+    try {
+        const result = await pool.query(
+            'SELECT * FROM payments WHERE sender_id = $1',
+            [userId]
+        )
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        console.error('Error al obtener los pagos por Id de usuario: ', error)
+        res.status(500).json({
+            message: 'Error al obtener los pagos por Id de usuario'
+        })
+    }
+}
+
 // Función para crear un nuevo pago
 const createPayment = async (req: Request, res: Response) => {
     const {amount, date, payment_type, recipient_id, sender_id} = req.body
@@ -36,4 +53,4 @@ const createPayment = async (req: Request, res: Response) => {
 }
 
 // Exportamos las funciones del controlador
-export { getAllPayments, createPayment };
+export { getAllPayments, getPaymentsByUserId, createPayment };
