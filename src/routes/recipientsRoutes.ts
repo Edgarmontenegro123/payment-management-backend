@@ -4,9 +4,9 @@ import {getAllRecipients, createRecipient} from '../controllers/recipientControl
 const router = express.Router();
 
 // Ruta para obtener todos los destinatarios
-router.get('/recipients', getAllRecipients);
+router.get('/', getAllRecipients);
 
 // Ruta para crear un nuevo destinatario
-router.post('/recipients', createRecipient);
+router.post('/', createRecipient);
 
 export default router;
