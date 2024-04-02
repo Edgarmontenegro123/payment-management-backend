@@ -4,12 +4,12 @@ import { getAllUsers, createUser, getUserById } from '../controllers/userControl
 const router = express.Router();
 
 // Ruta para obtener todos los usuarios
-router.get('/users', getAllUsers);
+router.get('/', getAllUsers);
 
 // Ruta para crear un nuevo usuario
-router.post('/users', createUser);
+router.post('/', createUser);
 
 // Ruta para obtener un usuario por su ID
-router.get('/users/:id', getUserById);
+router.get('/:id', getUserById);
 
 export default router;
