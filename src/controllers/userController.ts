@@ -32,10 +32,26 @@ export const getUserById = async (req: Request, res: Response) => {
 // Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response) => {
     const {username, email, password, is_recipient, bank_account_number, is_active} = req.body
+
+    // Validar si todos los campos están presentes
+    if(!username || !email || !password || !bank_account_number) {
+        return res.status(400).json({
+            message: 'Todos los campos son obligatorios'
+        })
+    }
+
+    // Validar formato email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if(!emailRegex.test(email)) {
+        return res.status(400).json({
+            message:'Formato de email inválido'
+        })
+    }
+
     try {
         const result = await pool.query(
             'INSERT INTO users (username, email, password, is_recipient, bank_account_number, is_active) ' +
-            'VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'VALUES ($1, $2, $3, COALESCE($4, false), $5, COALESCE($6, true)) RETURNING *',
             [username, email, password, is_recipient, bank_account_number, is_active]
         )
         res.status(201).json(result.rows[0])
