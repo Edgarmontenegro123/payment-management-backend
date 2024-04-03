@@ -79,3 +79,24 @@ export const createUser = async (req: Request, res: Response) => {
         })
     }
 }
+
+// Función para activar o desactivar un usuario
+export const updateUserStatus = async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.id);
+    const { is_active } = req.body;
+
+    try {
+        // Verificar si el usuario existe
+        const userExists = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+        if (userExists.rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Actualizar el estado de activación del usuario
+        await pool.query('UPDATE users SET is_active = $1 WHERE id = $2', [is_active, userId]);
+        res.status(200).json({ message: 'Estado de activación actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar el estado de activación del usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
