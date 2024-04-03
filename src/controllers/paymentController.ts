@@ -5,6 +5,12 @@ import {pool} from '../app'
 const getAllPayments = async (req: Request, res: Response) => {
     try{
         const result = await pool.query('SELECT * FROM payments')
+
+        if(result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'No se encontraron pagos'
+            })
+        }
         res.status(200).json(result.rows)
     } catch (error) {
         console.error('Error al obtener los pagos: ', error)
@@ -27,7 +33,7 @@ const getPaymentsByUserId = async (req: Request, res: Response) => {
         )
         if(result.rowCount === 0) {
             return res.status(404).json({
-                message: 'No se encontraron pagos para este usuario'
+                message: 'No se encontraron pagos realizados por este usuario'
             })
         }
         return res.status(200).json(result.rows)
@@ -47,6 +53,19 @@ const createPayment = async (req: Request, res: Response) => {
     if (!amount || !date || !payment_type || !recipient_id || !sender_id) {
         return res.status(400).json({ message: 'Todos los campos son requeridos' });
     }
+    // Validamos la cantidad del pago
+    if(amount <= 0) {
+        return res.status(400).json({
+            message: 'El monto del pago debe ser mayor a cero'
+        })
+    }
+    // Validamos tipo de pago
+    const allowedPaymentTypes = ['Débito', 'Crédito', 'Transferencia', 'Cheque']
+    if(!allowedPaymentTypes.includes(payment_type)) {
+        return res.status(400).json({
+            message: 'Los tipos de pago aceptado son Débito, Crédito, Transferencia o Cheque'
+        })
+    }
 
     if(sender_id === recipient_id) {
         return res.status(400).json({
@@ -54,6 +73,22 @@ const createPayment = async (req: Request, res: Response) => {
         })
     }
     try {
+        // Verificamos si existen sender_id y recipient_id
+        const senderExists = await pool.query('SELECT * FROM users WHERE id = $1',
+            [sender_id])
+        const recipientExists = await pool.query('SELECT * FROM users WHERE id = $1',
+            [recipient_id])
+        if(senderExists.rows.length === 0) {
+            return res.status(404).json({
+                message: 'El usuario remitente no existe'
+            })
+        }
+        if(recipientExists.rows.length === 0) {
+            return res.status(404).json({
+                message: 'El usuario receptor no existe'
+            })
+        }
+
         const result = await pool.query(
             'INSERT INTO payments (amount, date, payment_type, recipient_id, sender_id) VALUES (' +
             '$1, $2, $3, $4, $5) RETURNING *',

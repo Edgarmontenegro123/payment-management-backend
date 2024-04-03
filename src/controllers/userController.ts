@@ -5,6 +5,12 @@ import {pool} from '../app'
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
         const result = await pool.query('SELECT * FROM users')
+
+        if(result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'No se encontraron usuarios'
+            })
+        }
         res.status(200).json(result.rows)
     } catch (error) {
         console.log('Error al obtener los usuarios: ', error)
@@ -44,13 +50,19 @@ export const createUser = async (req: Request, res: Response) => {
             message: 'Todos los campos son obligatorios'
         })
     }
-
     // Validar formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if(!emailRegex.test(email)) {
         return res.status(400).json({
             message:'Formato de email inválido'
         })
+    }
+    // Validamos que bank_account_number sean 22 números
+    const bankAccountRegex = /^\d{22}$/;
+    if (!bankAccountRegex.test(bank_account_number)) {
+        return res.status(400).json({
+            message: 'El número de cuenta bancaria debe contener exactamente 22 números'
+        });
     }
 
     try {
