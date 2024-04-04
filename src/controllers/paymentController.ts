@@ -1,47 +1,50 @@
 import {Request, Response} from 'express'
 import {pool} from '../app'
 
-// Función para obtener todos los pagos
-const getAllPayments = async (req: Request, res: Response) => {
-    try{
-        const result = await pool.query('SELECT * FROM payments')
-
-        if(result.rows.length === 0) {
-            return res.status(404).json({
-                message: 'No se encontraron pagos'
-            })
-        }
-        res.status(200).json(result.rows)
-    } catch (error) {
-        console.error('Error al obtener los pagos: ', error)
-        res.status(500).json({message: 'Error al obtener los pagos'})
-    }
-}
-
-// Función para obtener pagos por ID de usuario
-const getPaymentsByUserId = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id)
-    if(isNaN(userId) || userId <= 0) {
-        return res.status(400).json({
-            message: 'Id de usuario no válido'
-        })
-    }
+// Función para obtener todos los pagos o a partir de queries filtrar
+const getPayments = async (req: Request, res: Response) => {
     try {
-        const result = await pool.query(
-            'SELECT * FROM payments WHERE sender_id = $1',
-            [userId]
-        )
-        if(result.rowCount === 0) {
-            return res.status(404).json({
-                message: 'No se encontraron pagos realizados por este usuario'
-            })
+        let query = 'SELECT * FROM payments WHERE 1 = 1';
+        const queryParams: any[] = [];
+        const { userId, amount, date, payment_type } = req.query;
+
+        if (userId) {
+            const parsedUserId = parseInt(userId as string);
+            if (isNaN(parsedUserId) || parsedUserId <= 0) {
+                return res.status(400).json({ message: 'Id de usuario no válido' });
+            }
+            query += ' AND sender_id = $' + (queryParams.length + 1);
+            queryParams.push(parsedUserId);
         }
-        return res.status(200).json(result.rows)
+
+        if (amount) {
+            const parsedAmount = parseFloat(amount as string);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                return res.status(400).json({ message: 'Monto no válido' });
+            }
+            query += ` AND amount = $${queryParams.length + 1}`;
+            queryParams.push(parsedAmount);
+        }
+
+        if (date) {
+            query += ` AND date = $${queryParams.length + 1}`;
+            queryParams.push(date);
+        }
+
+        if (payment_type) {
+            query += ` AND payment_type = $${queryParams.length + 1}`;
+            queryParams.push(payment_type);
+        }
+
+        const result = await pool.query(query, queryParams);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron pagos según el filtro' });
+        }
+
+        res.status(200).json(result.rows);
     } catch (error) {
-        console.error('Error al obtener los pagos por Id de usuario: ', error)
-        res.status(500).json({
-            message: 'Error al obtener los pagos por Id de usuario'
-        })
+        console.error('Error al obtener los pagos: ', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 }
 
@@ -104,4 +107,4 @@ const createPayment = async (req: Request, res: Response) => {
 }
 
 // Exportamos las funciones del controlador
-export { getAllPayments, getPaymentsByUserId, createPayment };
+export { getPayments, createPayment };
