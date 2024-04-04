@@ -12,5 +12,4 @@ router.post('/', createUser);
 // Ruta para actualizar el estado de activación de un usuario
 router.put('/:id/status', updateUserStatus)
 
-
 export default router;
