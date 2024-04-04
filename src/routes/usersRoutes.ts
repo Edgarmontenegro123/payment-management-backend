@@ -10,7 +10,6 @@ router.get('/:id', getUserById);
 // Ruta para crear un nuevo usuario
 router.post('/', createUser);
 // Ruta para actualizar el estado de activación de un usuario
-router.put(':id/status', updateUserStatus)
-
+router.put('/:id/status', updateUserStatus)
 
 export default router;
