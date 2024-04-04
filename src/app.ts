@@ -3,7 +3,7 @@ import {Pool} from 'pg'
 import dotenv from 'dotenv'
 import usersRoutes from './routes/usersRoutes'
 import paymentsRoutes from './routes/paymentsRoutes'
-// import recipientsRoutes from './routes/recipientsRoutes'
+import authRoutes from './routes/authRoutes'
 
 // Cargamos variables de entorno desde el archivo .env
 dotenv.config()
@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 // Importamos las rutas
 app.use('/users', usersRoutes)
 app.use('/payments', paymentsRoutes)
-// app.use('/recipients', recipientsRoutes)
+app.use('/login', authRoutes)
 
 app.listen(port, () => {
     console.log(`server is listening on ${port}`)
