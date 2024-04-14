@@ -61,7 +61,7 @@ export const createUser = async (req: Request, res: Response) => {
     const bankAccountRegex = /^\d{22}$/;
     if (!bankAccountRegex.test(User.bank_account_number)) {
         return res.status(400).json({
-            message: 'El número de cuenta bancaria debe contener exactamente 22 números'
+            message: 'El número de cuenta bancaria debe estar formado por exactamente 22 números'
         });
     }
 

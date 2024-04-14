@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pool = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 const usersRoutes_1 = __importDefault(require("./routes/usersRoutes"));
@@ -17,6 +18,8 @@ exports.app = app;
 const port = 3000;
 // Middleware para procesar solicitudes JSON
 app.use(express_1.default.json());
+// Middleware para permitir cors
+app.use((0, cors_1.default)());
 // Configuramos la conexión a PostgreSQL
 const pool = new pg_1.Pool({
     user: process.env.DB_USER,

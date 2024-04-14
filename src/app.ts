@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import {Pool} from 'pg'
 import dotenv from 'dotenv'
 import usersRoutes from './routes/usersRoutes'
@@ -13,6 +14,9 @@ const port = 3000
 
 // Middleware para procesar solicitudes JSON
 app.use(express.json())
+
+// Middleware para permitir cors
+app.use(cors())
 
 // Configuramos la conexión a PostgreSQL
 const pool = new Pool({
