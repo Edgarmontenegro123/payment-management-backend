@@ -1,9 +1,10 @@
 import express from 'express'
+import cors from 'cors'
 import {Pool} from 'pg'
 import dotenv from 'dotenv'
 import usersRoutes from './routes/usersRoutes'
 import paymentsRoutes from './routes/paymentsRoutes'
-// import recipientsRoutes from './routes/recipientsRoutes'
+import authRoutes from './routes/authRoutes'
 
 // Cargamos variables de entorno desde el archivo .env
 dotenv.config()
@@ -13,6 +14,9 @@ const port = 3000
 
 // Middleware para procesar solicitudes JSON
 app.use(express.json())
+
+// Middleware para permitir cors
+app.use(cors())
 
 // Configuramos la conexión a PostgreSQL
 const pool = new Pool({
@@ -40,7 +44,7 @@ app.get('/', (req, res) => {
 // Importamos las rutas
 app.use('/users', usersRoutes)
 app.use('/payments', paymentsRoutes)
-// app.use('/recipients', recipientsRoutes)
+app.use('/login', authRoutes)
 
 app.listen(port, () => {
     console.log(`server is listening on ${port}`)

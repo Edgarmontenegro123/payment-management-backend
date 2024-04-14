@@ -42,26 +42,26 @@ export const getUserById = async (req: Request, res: Response) => {
 
 // Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response) => {
-    const {username, email, password, is_recipient, bank_account_number, is_active} = req.body
+    const User = req.body
 
     // Validar si todos los campos están presentes
-    if(!username || !email || !password || !bank_account_number) {
+    if(!User.username || !User.email || !User.password || !User.bank_account_number) {
         return res.status(400).json({
             message: 'Todos los campos son obligatorios'
         })
     }
     // Validar formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if(!emailRegex.test(email)) {
+    if(!emailRegex.test(User.email)) {
         return res.status(400).json({
             message:'Formato de email inválido'
         })
     }
     // Validamos que bank_account_number sean 22 números
     const bankAccountRegex = /^\d{22}$/;
-    if (!bankAccountRegex.test(bank_account_number)) {
+    if (!bankAccountRegex.test(User.bank_account_number)) {
         return res.status(400).json({
-            message: 'El número de cuenta bancaria debe contener exactamente 22 números'
+            message: 'El número de cuenta bancaria debe estar formado por exactamente 22 números'
         });
     }
 
@@ -69,7 +69,7 @@ export const createUser = async (req: Request, res: Response) => {
         const result = await pool.query(
             'INSERT INTO users (username, email, password, is_recipient, bank_account_number, is_active) ' +
             'VALUES ($1, $2, $3, COALESCE($4, false), $5, COALESCE($6, true)) RETURNING *',
-            [username, email, password, is_recipient, bank_account_number, is_active]
+            [User.username, User.email, User.password, User.is_recipient, User.bank_account_number, User.is_active]
         )
         res.status(201).json(result.rows[0])
     } catch (error) {
